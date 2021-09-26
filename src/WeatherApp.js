@@ -4,10 +4,10 @@ import React, { useEffect, useState, useCallback } from "react"
 import styled from "@emotion/styled"
 
 // 載入圖示
-import { ReactComponent as CloudyIcon } from "./images/day-cloudy.svg"
 import { ReactComponent as AirFlowIcon } from "./images/airFlow.svg"
 import { ReactComponent as RainIcon } from "./images/rain.svg"
 import { ReactComponent as RefreshIcon } from "./images/refresh.svg"
+import WeatherIcon from "./WeatherIcon"
 
 // STEP 2：定義帶有 styled 的 component
 const Container = styled.div`
