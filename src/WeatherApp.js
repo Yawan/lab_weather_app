@@ -225,7 +225,10 @@ const WeatherApp = () => {
           <Temperature>
             {temperature} <Celsius>°C</Celsius>
           </Temperature>
-          <WeatherIcon />
+          <WeatherIcon
+            currentWeatherCode={weatherElement.weatherCode}
+            moment="night"
+          />
         </CurrentWeather>
         <AirFlow>
           <AirFlowIcon />

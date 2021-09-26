@@ -75,10 +75,9 @@ const weatherIcons = {
 }
 
 const WeatherIcon = ({ currentWeatherCode, moment }) => {
+  const [currentWeatherIcon, setCurrentWeatherIcon] = useState("isClear")
   return (
-    <IconContainer>
-      <CloudyIcon />
-    </IconContainer>
+    <IconContainer>{weatherIcons[moment][currentWeatherIcon]}</IconContainer>
   )
 }
 
