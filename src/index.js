@@ -1,19 +1,19 @@
-import { StrictMode } from "react";
-import ReactDOM from "react-dom";
+import { StrictMode } from "react"
+import ReactDOM from "react-dom"
 
-import WeatherApp from "./WeatherApp";
+import WeatherApp from "./WeatherApp"
 
 // 這支 CSS 檔的樣式會作用到全域
-import "./styles.css";
+import "./styles.css"
 
 function App() {
-  return <WeatherApp />;
+  return <WeatherApp />
 }
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById("root")
 ReactDOM.render(
   <StrictMode>
     <App />
   </StrictMode>,
   rootElement
-);
+)
