@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import styled from "@emotion/styled"
 
 import { ReactComponent as DayClear } from "./images/day-clear.svg"
@@ -37,22 +37,6 @@ const weatherTypes = {
   isSnowing: [23, 37, 42],
 }
 
-// 假設從 API 取得的天氣代碼是 1
-const currentWeatherCode = 1
-
-// 使用迴圈來找出該天氣代碼對應到的天氣型態
-const weatherCode2Type = (weatherCode) => {
-  console.log(Object.entries(weatherTypes))
-  const [weatherType] =
-    Object.entries(weatherTypes).find(([weatherType, weatherCodes]) =>
-      weatherCodes.includes(Number(weatherCode))
-    ) || []
-
-  return weatherType
-}
-
-console.log(weatherCode2Type(currentWeatherCode)) // isClear
-
 const weatherIcons = {
   day: {
     isThunderstorm: <DayThunderstorm />,
@@ -76,6 +60,22 @@ const weatherIcons = {
 
 const WeatherIcon = ({ currentWeatherCode, moment }) => {
   const [currentWeatherIcon, setCurrentWeatherIcon] = useState("isClear")
+
+  useEffect(() => {
+    // 透過Array.prototype.find()來找出該天氣代碼對應到的天氣型態
+    console.log("Convert weatherCode to weatherType")
+    const weatherCode2Type = (weatherCode) => {
+      const [weatherType] =
+        Object.entries(weatherTypes).find(([weatherType, weatherCodes]) =>
+          weatherCodes.includes(Number(weatherCode))
+        ) || []
+
+      return weatherType
+    }
+    const currentWeatherIcon = weatherCode2Type(currentWeatherCode)
+    setCurrentWeatherIcon(currentWeatherIcon)
+  }, [currentWeatherCode])
+
   return (
     <IconContainer>{weatherIcons[moment][currentWeatherIcon]}</IconContainer>
   )
