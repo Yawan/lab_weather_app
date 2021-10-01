@@ -7,6 +7,7 @@ import styled from "@emotion/styled"
 import { ReactComponent as AirFlowIcon } from "./images/airFlow.svg"
 import { ReactComponent as RainIcon } from "./images/rain.svg"
 import { ReactComponent as RefreshIcon } from "./images/refresh.svg"
+import { ReactComponent as LoadingIcon } from "./images/loading.svg"
 import WeatherIcon from "./WeatherIcon"
 
 import { getMoment } from "./sunMoment"
@@ -126,6 +127,7 @@ const WeatherApp = () => {
     weatherCode: 0,
     rainPossibility: 0,
     comfortability: "",
+    isLoading: false,
   })
 
   const fetchData = useCallback(() => {
@@ -139,8 +141,15 @@ const WeatherApp = () => {
       setWeatherElement({
         ...currentWeather,
         ...weatherForecast,
+        isLoading: false,
       })
     }
+
+    setWeatherElement((prevState) => ({
+      ...prevState,
+      isLoading: true,
+    }))
+
     fetchingData()
   }, [])
 
@@ -249,9 +258,9 @@ const WeatherApp = () => {
           {weatherElement.humid * 100}%
         </Rain>
 
-        <Refresh onClick={fetchData}>
+        <Refresh onClick={fetchData} isLoading={weatherElement.isLoading}>
           最後觀測時間：{time}
-          <RefreshIcon />
+          {weatherElement.isLoading ? <LoadingIcon /> : <RefreshIcon />}
         </Refresh>
       </WeatherCard>
     </Container>
