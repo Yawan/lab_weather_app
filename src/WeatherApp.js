@@ -1,5 +1,5 @@
 // ./src/WeatherApp.js
-import React, { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback, useMemo } from "react"
 // STEP 1：載入 emotion 的 styled 套件
 import styled from "@emotion/styled"
 
@@ -8,6 +8,8 @@ import { ReactComponent as AirFlowIcon } from "./images/airFlow.svg"
 import { ReactComponent as RainIcon } from "./images/rain.svg"
 import { ReactComponent as RefreshIcon } from "./images/refresh.svg"
 import WeatherIcon from "./WeatherIcon"
+
+import { getMoment } from "./sunMoment"
 
 // STEP 2：定義帶有 styled 的 component
 const Container = styled.div`
@@ -142,6 +144,14 @@ const WeatherApp = () => {
     fetchingData()
   }, [])
 
+  // 透過 useMemo 避免每次都須重新計算取值，記得帶入 dependencies
+  const moment = useMemo(
+    () => getMoment(weatherElement.locationName),
+    [weatherElement.locationName]
+  )
+
+  console.debug("weatherElementd", weatherElement)
+  console.debug("moment", getMoment(weatherElement.locationName))
   // useEffect(<didUpdate>, [dependencies])
   // dependencies 有改變，才會呼叫 useEffect 內的 function
   useEffect(() => {
@@ -227,7 +237,7 @@ const WeatherApp = () => {
           </Temperature>
           <WeatherIcon
             currentWeatherCode={weatherElement.weatherCode}
-            moment="night"
+            moment={moment || "night"}
           />
         </CurrentWeather>
         <AirFlow>
