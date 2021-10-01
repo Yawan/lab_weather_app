@@ -143,6 +143,18 @@ const WeatherApp = () => {
     isLoading: false,
   })
 
+  const {
+    observationTime,
+    locationName,
+    humid,
+    temperature,
+    windSpeed,
+    description,
+    weatherCode,
+    rainPossibility,
+    comfortability,
+    isLoading,
+  } = weatherElement
   const fetchData = useCallback(() => {
     const fetchingData = async () => {
       console.log("fetchingData")
@@ -167,13 +179,10 @@ const WeatherApp = () => {
   }, [])
 
   // 透過 useMemo 避免每次都須重新計算取值，記得帶入 dependencies
-  const moment = useMemo(
-    () => getMoment(weatherElement.locationName),
-    [weatherElement.locationName]
-  )
+  const moment = useMemo(() => getMoment(locationName), [locationName])
 
   console.debug("weatherElementd", weatherElement)
-  console.debug("moment", getMoment(weatherElement.locationName))
+  console.debug("moment", getMoment(locationName))
   // useEffect(<didUpdate>, [dependencies])
   // dependencies 有改變，才會呼叫 useEffect 內的 function
   useEffect(() => {
@@ -243,35 +252,35 @@ const WeatherApp = () => {
   const time = new Intl.DateTimeFormat("zh-TW", {
     hour: "numeric",
     minute: "numeric",
-  }).format(new Date(weatherElement.observationTime))
+  }).format(new Date(observationTime))
 
-  const temperature = Math.round(weatherElement.temperature)
+  const rounedTemperature = Math.round(temperature)
 
   //
   return (
     <Container>
       <WeatherCard>
-        <Location theme="dark">{weatherElement.locationName}</Location>
-        <Description>{weatherElement.description}</Description>
+        <Location theme="dark">{locationName}</Location>
+        <Description>{description}</Description>
         <CurrentWeather>
           <Temperature>
-            {temperature} <Celsius>°C</Celsius>
+            {rounedTemperature} <Celsius>°C</Celsius>
           </Temperature>
           <WeatherIcon
-            currentWeatherCode={weatherElement.weatherCode}
+            currentWeatherCode={weatherCode}
             moment={moment || "night"}
           />
         </CurrentWeather>
         <AirFlow>
           <AirFlowIcon />
-          {weatherElement.windSpeed} m/h
+          {windSpeed} m/h
         </AirFlow>
         <Rain>
           <RainIcon />
-          {weatherElement.humid * 100}%
+          {humid * 100}%
         </Rain>
 
-        <Refresh onClick={fetchData} isLoading={weatherElement.isLoading}>
+        <Refresh onClick={fetchData} isLoading={isLoading}>
           最後觀測時間：{time}
           {weatherElement.isLoading ? <LoadingIcon /> : <RefreshIcon />}
         </Refresh>
