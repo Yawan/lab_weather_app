@@ -112,6 +112,19 @@ const Refresh = styled.div`
     width: 15px;
     height: 15px;
     cursor: pointer;
+    /* STEP 2：使用 rotate 動畫效果在 svg 圖示上 */
+    animation: rotate infinite 1.5s linear;
+    animation-duration: ${({ isLoading }) => (isLoading ? "1.5s" : "0s")};
+  }
+
+  /* STEP 1：定義旋轉的動畫效果，並取名為 rotate */
+  @keyframes rotate {
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
   }
 `
 
