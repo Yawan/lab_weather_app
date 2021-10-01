@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import styled from "@emotion/styled"
 
 import { ReactComponent as DayClear } from "./images/day-clear.svg"
@@ -58,23 +58,26 @@ const weatherIcons = {
   },
 }
 
+const weatherCode2Type = (weatherCode) => {
+  const [weatherType] =
+    Object.entries(weatherTypes).find(([weatherType, weatherCodes]) =>
+      weatherCodes.includes(Number(weatherCode))
+    ) || []
+
+  return weatherType
+}
+
 const WeatherIcon = ({ currentWeatherCode, moment }) => {
   const [currentWeatherIcon, setCurrentWeatherIcon] = useState("isClear")
 
+  const theWeatherType = useMemo(
+    () => weatherCode2Type(currentWeatherCode),
+    [currentWeatherCode]
+  )
   useEffect(() => {
-    // 透過Array.prototype.find()來找出該天氣代碼對應到的天氣型態
-    console.log("Convert weatherCode to weatherType")
-    const weatherCode2Type = (weatherCode) => {
-      const [weatherType] =
-        Object.entries(weatherTypes).find(([weatherType, weatherCodes]) =>
-          weatherCodes.includes(Number(weatherCode))
-        ) || []
-
-      return weatherType
-    }
-    const currentWeatherIcon = weatherCode2Type(currentWeatherCode)
-    setCurrentWeatherIcon(currentWeatherIcon)
-  }, [currentWeatherCode])
+    console.log("weatherIcon effect: ", theWeatherType)
+    setCurrentWeatherIcon(theWeatherType)
+  }, [theWeatherType])
 
   return (
     <IconContainer>{weatherIcons[moment][currentWeatherIcon]}</IconContainer>
