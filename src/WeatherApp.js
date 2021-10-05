@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react"
 // STEP 1：載入 emotion 的 styled 套件
 import styled from "@emotion/styled"
+import { ThemeProvider } from "@emotion/react"
 
 // 載入圖示
 import { ReactComponent as AirFlowIcon } from "./images/airFlow.svg"
@@ -12,9 +13,30 @@ import WeatherIcon from "./WeatherIcon"
 
 import { getMoment } from "./sunMoment"
 
-// STEP 2：定義帶有 styled 的 component
+// 定義主題配色
+const theme = {
+  light: {
+    backgroundColor: "#ededed",
+    foregroundColor: "#f9f9f9",
+    boxShadow: "0 1px 3px 0 #999999",
+    titleColor: "#212121",
+    temperatureColor: "#757575",
+    textColor: "#828282",
+  },
+  dark: {
+    backgroundColor: "#1F2022",
+    foregroundColor: "#121416",
+    boxShadow:
+      "0 1px 4px 0 rgba(12, 12, 13, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.15)",
+    titleColor: "#f9f9fa",
+    temperatureColor: "#dddddd",
+    textColor: "#cccccc",
+  },
+}
+
+// #region Styled Components
 const Container = styled.div`
-  background-color: #ededed;
+  background-color: ${(props) => props.theme.backgroundColor};
   height: 100%;
   display: flex;
   align-items: center;
@@ -24,22 +46,21 @@ const Container = styled.div`
 const WeatherCard = styled.div`
   position: relative;
   min-width: 360px;
-  box-shadow: 0 1px 3px 0 #999999;
-  background-color: #f9f9f9;
+  box-shadow: ${({ theme }) => theme.boxShadow};
+  background-color: ${({ theme }) => theme.foregroundColor};
   box-sizing: border-box;
   padding: 30px 15px;
 `
 
 const Location = styled.div`
-  ${(props) => console.log(props.theme === "dark" ? "#dadada" : "#212121")}
   font-size: 28px;
-  color: ${(props) => (props.theme === "dark" ? "#dadada" : "#212121")};
+  color: ${({ theme }) => theme.titleColor};
   margin-bottom: 20px;
 `
 
 const Description = styled.div`
   font-size: 16px;
-  color: #828282;
+  color: ${({ theme }) => theme.textColor};
   margin-bottom: 30px;
 `
 
@@ -51,7 +72,7 @@ const CurrentWeather = styled.div`
 `
 
 const Temperature = styled.div`
-  color: #757575;
+  color: ${({ theme }) => theme.temperatureColor};
   font-size: 96px;
   font-weight: 300;
   display: flex;
@@ -67,7 +88,7 @@ const AirFlow = styled.div`
   align-items: center;
   font-size: 16x;
   font-weight: 300;
-  color: #828282;
+  color: ${({ theme }) => theme.textColor};
   margin-bottom: 20px;
   svg {
     width: 25px;
@@ -81,7 +102,7 @@ const Rain = styled.div`
   align-items: center;
   font-size: 16x;
   font-weight: 300;
-  color: #828282;
+  color: ${({ theme }) => theme.textColor};
 
   svg {
     width: 25px;
@@ -91,7 +112,6 @@ const Rain = styled.div`
 `
 
 // 透過 styled(組件) 來把樣式帶入已存在的組件中
-
 // const Cloudy = styled(CloudyIcon)`
 //   /* 在這裡寫入 CSS 樣式 */
 //   flex-basis: 30%;
@@ -106,7 +126,7 @@ const Refresh = styled.div`
   font-size: 12px;
   display: inline-flex;
   align-items: flex-end;
-  color: #828282;
+  color: ${({ theme }) => theme.textColor};
   svg {
     margin-left: 10px;
     width: 15px;
@@ -127,8 +147,9 @@ const Refresh = styled.div`
     }
   }
 `
+// #endregion
 
-// STEP 3：把上面定義好的 styled-component 當成組件使用
+// 把上面定義好的 styled-component 當成組件使用
 const WeatherApp = () => {
   const [weatherElement, setWeatherElement] = useState({
     observationTime: new Date(),
@@ -143,6 +164,7 @@ const WeatherApp = () => {
     isLoading: false,
   })
 
+  const [currentTheme, setCurrentTheme] = useState(theme.light)
   const {
     observationTime,
     locationName,
@@ -155,6 +177,7 @@ const WeatherApp = () => {
     comfortability,
     isLoading,
   } = weatherElement
+
   const fetchData = useCallback(() => {
     const fetchingData = async () => {
       console.log("fetchingData")
@@ -189,6 +212,9 @@ const WeatherApp = () => {
     fetchData()
   }, [fetchData])
 
+  useEffect(() => {
+    setCurrentTheme(moment === "day" ? theme.light : theme.dark)
+  }, [moment])
   const fetchCurrentWeather = () => {
     return fetch(
       "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=臺北"
@@ -258,34 +284,36 @@ const WeatherApp = () => {
 
   //
   return (
-    <Container>
-      <WeatherCard>
-        <Location theme="dark">{locationName}</Location>
-        <Description>{description}</Description>
-        <CurrentWeather>
-          <Temperature>
-            {rounedTemperature} <Celsius>°C</Celsius>
-          </Temperature>
-          <WeatherIcon
-            currentWeatherCode={weatherCode}
-            moment={moment || "night"}
-          />
-        </CurrentWeather>
-        <AirFlow>
-          <AirFlowIcon />
-          {windSpeed} m/h
-        </AirFlow>
-        <Rain>
-          <RainIcon />
-          {humid * 100}%
-        </Rain>
+    <ThemeProvider theme={currentTheme}>
+      <Container>
+        <WeatherCard>
+          <Location>{locationName}</Location>
+          <Description>{description}</Description>
+          <CurrentWeather>
+            <Temperature>
+              {rounedTemperature} <Celsius>°C</Celsius>
+            </Temperature>
+            <WeatherIcon
+              currentWeatherCode={weatherCode}
+              moment={moment || "night"}
+            />
+          </CurrentWeather>
+          <AirFlow>
+            <AirFlowIcon />
+            {windSpeed} m/h
+          </AirFlow>
+          <Rain>
+            <RainIcon />
+            {humid * 100}%
+          </Rain>
 
-        <Refresh onClick={fetchData} isLoading={isLoading}>
-          最後觀測時間：{time}
-          {weatherElement.isLoading ? <LoadingIcon /> : <RefreshIcon />}
-        </Refresh>
-      </WeatherCard>
-    </Container>
+          <Refresh onClick={fetchData} isLoading={isLoading}>
+            最後觀測時間：{time}
+            {weatherElement.isLoading ? <LoadingIcon /> : <RefreshIcon />}
+          </Refresh>
+        </WeatherCard>
+      </Container>
+    </ThemeProvider>
   )
 }
 
