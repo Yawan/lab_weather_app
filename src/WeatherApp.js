@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import { ThemeProvider } from "@emotion/react"
 
 import WeatherCard from "./WeatherCard"
+import WeatherSetting from "./WeatherSetting"
 import useWeatherApi from "./useWeatherApi"
 import { getMoment } from "./sunMoment"
 
@@ -63,6 +64,7 @@ const WeatherApp = () => {
           moment={moment}
           fetchData={fetchData}
         />
+        <WeatherSetting />
       </Container>
     </ThemeProvider>
   )
