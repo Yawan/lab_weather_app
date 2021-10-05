@@ -4,13 +4,8 @@ import React, { useEffect, useState, useCallback, useMemo } from "react"
 import styled from "@emotion/styled"
 import { ThemeProvider } from "@emotion/react"
 
-// 載入圖示
-import { ReactComponent as AirFlowIcon } from "./images/airFlow.svg"
-import { ReactComponent as RainIcon } from "./images/rain.svg"
-import { ReactComponent as RefreshIcon } from "./images/refresh.svg"
-import { ReactComponent as LoadingIcon } from "./images/loading.svg"
-import WeatherIcon from "./WeatherIcon"
-
+import WeatherCard from "./WeatherCard"
+import useWeatherApi from "./useWeatherApi"
 import { getMoment } from "./sunMoment"
 
 // 定義主題配色
@@ -42,276 +37,32 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
 `
-
-const WeatherCard = styled.div`
-  position: relative;
-  min-width: 360px;
-  box-shadow: ${({ theme }) => theme.boxShadow};
-  background-color: ${({ theme }) => theme.foregroundColor};
-  box-sizing: border-box;
-  padding: 30px 15px;
-`
-
-const Location = styled.div`
-  font-size: 28px;
-  color: ${({ theme }) => theme.titleColor};
-  margin-bottom: 20px;
-`
-
-const Description = styled.div`
-  font-size: 16px;
-  color: ${({ theme }) => theme.textColor};
-  margin-bottom: 30px;
-`
-
-const CurrentWeather = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-`
-
-const Temperature = styled.div`
-  color: ${({ theme }) => theme.temperatureColor};
-  font-size: 96px;
-  font-weight: 300;
-  display: flex;
-`
-
-const Celsius = styled.div`
-  font-weight: normal;
-  font-size: 42px;
-`
-
-const AirFlow = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 16x;
-  font-weight: 300;
-  color: ${({ theme }) => theme.textColor};
-  margin-bottom: 20px;
-  svg {
-    width: 25px;
-    height: auto;
-    margin-right: 30px;
-  }
-`
-
-const Rain = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 16x;
-  font-weight: 300;
-  color: ${({ theme }) => theme.textColor};
-
-  svg {
-    width: 25px;
-    height: auto;
-    margin-right: 30px;
-  }
-`
-
-// 透過 styled(組件) 來把樣式帶入已存在的組件中
-// const Cloudy = styled(CloudyIcon)`
-//   /* 在這裡寫入 CSS 樣式 */
-//   flex-basis: 30%;
-// `;
-
-const Refresh = styled.div`
-  /* 在這裡寫入 CSS 樣式 */
-
-  position: absolute;
-  right: 15px;
-  bottom: 15px;
-  font-size: 12px;
-  display: inline-flex;
-  align-items: flex-end;
-  color: ${({ theme }) => theme.textColor};
-  svg {
-    margin-left: 10px;
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
-    /* STEP 2：使用 rotate 動畫效果在 svg 圖示上 */
-    animation: rotate infinite 1.5s linear;
-    animation-duration: ${({ isLoading }) => (isLoading ? "1.5s" : "0s")};
-  }
-
-  /* STEP 1：定義旋轉的動畫效果，並取名為 rotate */
-  @keyframes rotate {
-    from {
-      transform: rotate(360deg);
-    }
-    to {
-      transform: rotate(0deg);
-    }
-  }
-`
 // #endregion
 
 // 把上面定義好的 styled-component 當成組件使用
 const WeatherApp = () => {
-  const [weatherElement, setWeatherElement] = useState({
-    observationTime: new Date(),
-    locationName: "",
-    humid: 0,
-    temperature: 0,
-    windSpeed: 0,
-    description: "",
-    weatherCode: 0,
-    rainPossibility: 0,
-    comfortability: "",
-    isLoading: false,
-  })
-
   const [currentTheme, setCurrentTheme] = useState(theme.light)
-  const {
-    observationTime,
-    locationName,
-    humid,
-    temperature,
-    windSpeed,
-    description,
-    weatherCode,
-    rainPossibility,
-    comfortability,
-    isLoading,
-  } = weatherElement
-
-  const fetchData = useCallback(() => {
-    const fetchingData = async () => {
-      console.log("fetchingData")
-      const [currentWeather, weatherForecast] = await Promise.all([
-        fetchCurrentWeather(),
-        fetchWeatherForecast(),
-      ])
-
-      setWeatherElement({
-        ...currentWeather,
-        ...weatherForecast,
-        isLoading: false,
-      })
-    }
-
-    setWeatherElement((prevState) => ({
-      ...prevState,
-      isLoading: true,
-    }))
-
-    fetchingData()
-  }, [])
+  const [weatherElement, fetchData] = useWeatherApi()
+  const { locationName } = weatherElement
 
   // 透過 useMemo 避免每次都須重新計算取值，記得帶入 dependencies
   const moment = useMemo(() => getMoment(locationName), [locationName])
 
   console.debug("weatherElementd", weatherElement)
   console.debug("moment", getMoment(locationName))
-  // useEffect(<didUpdate>, [dependencies])
-  // dependencies 有改變，才會呼叫 useEffect 內的 function
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
 
   useEffect(() => {
     setCurrentTheme(moment === "day" ? theme.light : theme.dark)
   }, [moment])
-  const fetchCurrentWeather = () => {
-    return fetch(
-      "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=臺北"
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("fetchCurrentWeather", data.records.location[0])
 
-        const locationData = data.records.location[0]
-
-        const weatherElements = locationData.weatherElement.reduce(
-          (neededElements, item) => {
-            if (["WDSD", "TEMP", "HUMD"].includes(item.elementName)) {
-              neededElements[item.elementName] = item.elementValue
-            }
-            return neededElements
-          },
-          {}
-        )
-        // console.log("curWeather e", weatherElements);
-
-        return {
-          observationTime: locationData.time.obsTime,
-          locationName: locationData.locationName,
-          temperature: weatherElements.TEMP,
-          windSpeed: weatherElements.WDSD,
-          humid: weatherElements.HUMD,
-        }
-      })
-  }
-  const fetchWeatherForecast = () => {
-    return fetch(
-      "https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=臺北市"
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("fetchWeatherForecast", data)
-
-        const locationData = data.records.location[0]
-
-        const weatherElements = locationData.weatherElement.reduce(
-          (neededElements, item) => {
-            // Wx: 天氣現象, PoP: 降雨機率, CI: 舒適度
-            if (["Wx", "PoP", "CI"].includes(item.elementName)) {
-              neededElements[item.elementName] = item.time[0].parameter
-            }
-            return neededElements
-          },
-          {}
-        )
-
-        console.log("foreCast", weatherElements)
-        return {
-          description: weatherElements.Wx.parameterName,
-          weatherCode: weatherElements.Wx.parameterValue,
-          rainPossibility: weatherElements.PoP.parameterName,
-          comfortability: weatherElements.CI.parameterName,
-        }
-      })
-  }
-  const time = new Intl.DateTimeFormat("zh-TW", {
-    hour: "numeric",
-    minute: "numeric",
-  }).format(new Date(observationTime))
-
-  const rounedTemperature = Math.round(temperature)
-
-  //
   return (
     <ThemeProvider theme={currentTheme}>
       <Container>
-        <WeatherCard>
-          <Location>{locationName}</Location>
-          <Description>{description}</Description>
-          <CurrentWeather>
-            <Temperature>
-              {rounedTemperature} <Celsius>°C</Celsius>
-            </Temperature>
-            <WeatherIcon
-              currentWeatherCode={weatherCode}
-              moment={moment || "night"}
-            />
-          </CurrentWeather>
-          <AirFlow>
-            <AirFlowIcon />
-            {windSpeed} m/h
-          </AirFlow>
-          <Rain>
-            <RainIcon />
-            {humid * 100}%
-          </Rain>
-
-          <Refresh onClick={fetchData} isLoading={isLoading}>
-            最後觀測時間：{time}
-            {weatherElement.isLoading ? <LoadingIcon /> : <RefreshIcon />}
-          </Refresh>
-        </WeatherCard>
+        <WeatherCard
+          weatherElement={weatherElement}
+          moment={moment}
+          fetchData={fetchData}
+        />
       </Container>
     </ThemeProvider>
   )
