@@ -114,7 +114,7 @@ const locations = [
   "連江縣",
 ]
 
-const WeatherSetting = () => {
+const WeatherSetting = ({ setCurrentPage }) => {
   return (
     <WeatherSettingWrapper>
       <Title>設定</Title>
@@ -128,7 +128,7 @@ const WeatherSetting = () => {
       </datalist>
 
       <ButtonGroup>
-        <Back>返回</Back>
+        <Back onClick={() => setCurrentPage("CardPage")}>返回</Back>
         <Save>儲存</Save>
       </ButtonGroup>
     </WeatherSettingWrapper>

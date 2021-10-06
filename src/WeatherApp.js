@@ -42,6 +42,7 @@ const Container = styled.div`
 
 // 把上面定義好的 styled-component 當成組件使用
 const WeatherApp = () => {
+  const [curentPage, setCurrentPage] = useState("CardPage")
   const [currentTheme, setCurrentTheme] = useState(theme.light)
   const [weatherElement, fetchData] = useWeatherApi()
   const { locationName } = weatherElement
@@ -53,18 +54,23 @@ const WeatherApp = () => {
   console.debug("moment", getMoment(locationName))
 
   useEffect(() => {
-    setCurrentTheme(moment === "day" ? theme.light : theme.dark)
+    setCurrentTheme(moment === "night" ? theme.dark : theme.light)
   }, [moment])
 
   return (
     <ThemeProvider theme={currentTheme}>
       <Container>
-        <WeatherCard
-          weatherElement={weatherElement}
-          moment={moment}
-          fetchData={fetchData}
-        />
-        <WeatherSetting />
+        {curentPage === "CardPage" && (
+          <WeatherCard
+            weatherElement={weatherElement}
+            moment={moment}
+            fetchData={fetchData}
+            setCurrentPage={setCurrentPage}
+          />
+        )}
+        {curentPage === "SettingPage" && (
+          <WeatherSetting setCurrentPage={setCurrentPage} />
+        )}
       </Container>
     </ThemeProvider>
   )
