@@ -171,7 +171,7 @@ const WeatherCard = (props) => {
       </AirFlow>
       <Rain>
         <RainIcon />
-        {Math.round(humid * 100)}%
+        {Math.round(rainPossibility)}%
       </Rain>
 
       <Refresh onClick={fetchData} isLoading={isLoading}>
