@@ -8,6 +8,7 @@ import WeatherCard from "./WeatherCard"
 import WeatherSetting from "./WeatherSetting"
 import useWeatherApi from "./useWeatherApi"
 import { getMoment } from "./sunMoment"
+import { findLocation } from "./utils"
 
 // 定義主題配色
 const theme = {
@@ -42,16 +43,21 @@ const Container = styled.div`
 
 // 把上面定義好的 styled-component 當成組件使用
 const WeatherApp = () => {
-  const [curentPage, setCurrentPage] = useState("CardPage")
+  const [currentCity, setCurrentCity] = useState("臺北市")
+  const [currentPage, setCurrentPage] = useState("CardPage")
   const [currentTheme, setCurrentTheme] = useState(theme.light)
   const [weatherElement, fetchData] = useWeatherApi()
-  const { locationName } = weatherElement
+  // const { locationName } = weatherElement
 
+  const currentLocation = findLocation(currentCity) || {}
   // 透過 useMemo 避免每次都須重新計算取值，記得帶入 dependencies
-  const moment = useMemo(() => getMoment(locationName), [locationName])
+  const moment = useMemo(
+    () => getMoment(currentLocation.sunriseCityName),
+    [currentLocation.sunriseCityName]
+  )
 
   console.debug("weatherElementd", weatherElement)
-  console.debug("moment", getMoment(locationName))
+  // console.debug("moment", getMoment(locationName))
 
   useEffect(() => {
     setCurrentTheme(moment === "night" ? theme.dark : theme.light)
@@ -60,16 +66,21 @@ const WeatherApp = () => {
   return (
     <ThemeProvider theme={currentTheme}>
       <Container>
-        {curentPage === "CardPage" && (
+        {currentPage === "CardPage" && (
           <WeatherCard
+            cityName={currentLocation.cityName}
             weatherElement={weatherElement}
             moment={moment}
             fetchData={fetchData}
             setCurrentPage={setCurrentPage}
           />
         )}
-        {curentPage === "SettingPage" && (
-          <WeatherSetting setCurrentPage={setCurrentPage} />
+        {currentPage === "SettingPage" && (
+          <WeatherSetting
+            cityName={currentLocation.cityName}
+            setCurrentCity={setCurrentCity}
+            setCurrentPage={setCurrentPage}
+          />
         )}
       </Container>
     </ThemeProvider>
