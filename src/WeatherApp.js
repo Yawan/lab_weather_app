@@ -1,14 +1,13 @@
 // ./src/WeatherApp.js
-import React, { useEffect, useState, useCallback, useMemo } from "react"
-// STEP 1：載入 emotion 的 styled 套件
-import styled from "@emotion/styled"
+// 載入 emotion 的 styled 套件
 import { ThemeProvider } from "@emotion/react"
-
+import styled from "@emotion/styled"
+import React, { useEffect, useMemo, useState } from "react"
+import { getMoment } from "./sunMoment"
+import useWeatherApi from "./useWeatherApi"
+import { findLocation } from "./utils"
 import WeatherCard from "./WeatherCard"
 import WeatherSetting from "./WeatherSetting"
-import useWeatherApi from "./useWeatherApi"
-import { getMoment } from "./sunMoment"
-import { findLocation } from "./utils"
 
 // 定義主題配色
 const theme = {
@@ -46,10 +45,11 @@ const WeatherApp = () => {
   const [currentCity, setCurrentCity] = useState("臺北市")
   const [currentPage, setCurrentPage] = useState("CardPage")
   const [currentTheme, setCurrentTheme] = useState(theme.light)
-  const [weatherElement, fetchData] = useWeatherApi()
-  // const { locationName } = weatherElement
 
   const currentLocation = findLocation(currentCity) || {}
+  const [weatherElement, fetchData] = useWeatherApi(currentLocation)
+  const { locationName } = weatherElement
+
   // 透過 useMemo 避免每次都須重新計算取值，記得帶入 dependencies
   const moment = useMemo(
     () => getMoment(currentLocation.sunriseCityName),

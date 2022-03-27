@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback, useMemo } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-const fetchCurrentWeather = () => {
+const fetchCurrentWeather = (locationName) => {
   return fetch(
-    "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=臺北"
+    `https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=${locationName}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -30,9 +30,9 @@ const fetchCurrentWeather = () => {
       }
     })
 }
-const fetchWeatherForecast = () => {
+const fetchWeatherForecast = (cityName) => {
   return fetch(
-    "https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=臺北市"
+    `https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-F2FB7C31-40C2-491F-81AD-F7A281AF5A43&locationName=${cityName}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -42,7 +42,7 @@ const fetchWeatherForecast = () => {
 
       const weatherElements = locationData.weatherElement.reduce(
         (neededElements, item) => {
-          // Wx: 天氣現象, PoP: 降雨機率, CI: 舒適度
+          // Wx: 天氣現象, PoP: 降雨機率, CI: 舒適度
           if (["Wx", "PoP", "CI"].includes(item.elementName)) {
             neededElements[item.elementName] = item.time[0].parameter
           }
@@ -61,7 +61,8 @@ const fetchWeatherForecast = () => {
     })
 }
 
-const useWeatherApi = () => {
+const useWeatherApi = (currentLocation) => {
+  const { locationName, cityName } = currentLocation
   const [weatherElement, setWeatherElement] = useState({
     observationTime: new Date(),
     locationName: "",
@@ -79,8 +80,8 @@ const useWeatherApi = () => {
     const fetchingData = async () => {
       console.log("fetchingData")
       const [currentWeather, weatherForecast] = await Promise.all([
-        fetchCurrentWeather(),
-        fetchWeatherForecast(),
+        fetchCurrentWeather(locationName),
+        fetchWeatherForecast(cityName),
       ])
 
       setWeatherElement({
@@ -96,7 +97,7 @@ const useWeatherApi = () => {
     }))
 
     fetchingData()
-  }, [])
+  }, [locationName, cityName])
 
   // useEffect(<didUpdate>, [dependencies])
   // dependencies 有改變，才會呼叫 useEffect 內的 function

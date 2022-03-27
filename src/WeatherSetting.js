@@ -1,8 +1,7 @@
 // ./src/WeatherSetting.js
 
-import React, { useState } from "react"
 import styled from "@emotion/styled"
-
+import React, { useState } from "react"
 import { availableLocations } from "./utils"
 
 const WeatherSettingWrapper = styled.div`
@@ -124,6 +123,9 @@ const WeatherSetting = ({ cityName, setCurrentCity, setCurrentPage }) => {
         name="location"
         value={locationName}
         onChange={handleChange}
+        onClick={() => {
+          setLocationName("")
+        }}
       />
       <datalist id="location-list">
         {/* 定義 datalist 中的 options*/}
